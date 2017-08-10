@@ -15,7 +15,7 @@ else
         echo "Detected new PEER_URLS value of $PEER_URLS"
 fi
 
-ETCD_CMD="/bin/etcd -data-dir=/data -listen-peer-urls=${PEER_URLS} -listen-client-urls=${CLIENT_URLS} -advertise-client-urls=http://etcd:4001 $*"
+ETCD_CMD="/bin/etcd --data-dir=/data --listen-peer-urls=${PEER_URLS} --listen-client-urls=${CLIENT_URLS} --advertise-client-urls=http://etcd:4001 $*"
 echo -e "Running '$ETCD_CMD'\nBEGIN ETCD OUTPUT\n"
 
 exec $ETCD_CMD
