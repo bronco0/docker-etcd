@@ -1,21 +1,21 @@
 #!/bin/sh
-# Check for $CLIENT_URLS
-if [ -z ${CLIENT_URLS+x} ]; then
-        CLIENT_URLS="http://etcd:4001,http://etcd:2379"
-        echo "Using default CLIENT_URLS ($CLIENT_URLS)"
-else
-        echo "Detected new CLIENT_URLS value of $CLIENT_URLS"
+# Check for $ETCD_NODE
+if [ -z ${ETCD_NODE} ]; then
+        echo "ETCD_NODE not defined"
+        exit 1
 fi
 
-# Check for $PEER_URLS
-if [ -z ${PEER_URLS+x} ]; then
-        PEER_URLS="http://0.0.0.0:7001,http://0.0.0.0:2380"
-        echo "Using default PEER_URLS ($PEER_URLS)"
-else
-        echo "Detected new PEER_URLS value of $PEER_URLS"
-fi
-
-ETCD_CMD="/bin/etcd --data-dir=/data --listen-peer-urls=${PEER_URLS} --listen-client-urls=${CLIENT_URLS} --advertise-client-urls=http://etcd:4001 $*"
+ETCD_CMD="/bin/etcd \
+  --data-dir=/data \
+  --name etcd-node-2 \
+  --initial-advertise-peer-urls http://k3s-server-${ETCD_NODE}.lan:2380 \
+  --listen-peer-urls http://k3s-server-${ETCD_NODE}.lan:2380 \
+  --listen-client-urls http://k3s-server-${ETCD_NODE}.lan:2379,http://127.0.0.1:2379 \
+  --advertise-client-urls http://k3s-server-${ETCD_NODE}.lan:2379 \
+  --initial-cluster-token etcd-cluster-1 \
+  --initial-cluster etcd-node-1=http://k3s-server-1.lan:2380,etcd-node-2=http:///k3s-server-2.lan:2380,etcd-node-3=http:///k3s-server-3.lan:2380 \
+  --initial-cluster-state new
+  $*"
 echo -e "Running '$ETCD_CMD'\nBEGIN ETCD OUTPUT\n"
 
 exec $ETCD_CMD
